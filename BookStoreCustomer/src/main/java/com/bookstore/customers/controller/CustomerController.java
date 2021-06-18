@@ -25,14 +25,14 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 public class CustomerController {
 
 	@Autowired
-	private ICustomerService userService;
+	private ICustomerService customerService;
 	
 	
 	@ApiOperation("End point to add Customer")
 	@PostMapping("/addCustomer")
 	public ResponseEntity<Response> addCustomer(@RequestBody BookDTO customerDTO) {
 		
-		Response addCustomerResponse = userService.addCustomer(customerDTO);
+		Response addCustomerResponse = customerService.addCustomer(customerDTO);
 		return new ResponseEntity<Response> (addCustomerResponse , HttpStatus.CREATED);
 		
 	}
@@ -42,7 +42,7 @@ public class CustomerController {
 	@PutMapping("/updateCustomer")
 	public ResponseEntity<Response> updateCustomer(@RequestBody BookDTO customerDTO , @RequestHeader String token) {
 		
-		Response updateCustomerResponse = userService.updateCustomer(customerDTO , token);
+		Response updateCustomerResponse = customerService.updateCustomer(customerDTO , token);
 		return new ResponseEntity<Response> (updateCustomerResponse , HttpStatus.OK);
 		
 	}
@@ -52,7 +52,7 @@ public class CustomerController {
 	@GetMapping(value = {"" ,"/" , "/viewCustomers"})
 	public ResponseEntity<Response> viewCustomers(@RequestHeader String token) {
 		
-		Response viewCustomersResponse = userService.viewCustomers(token);
+		Response viewCustomersResponse = customerService.viewCustomers(token);
 		return new ResponseEntity<Response> (viewCustomersResponse , HttpStatus.OK);
 		
 	}
@@ -62,8 +62,18 @@ public class CustomerController {
 	@GetMapping("/viewCustomer/{token}")
 	public ResponseEntity<Response> viewCustomer(@PathVariable String token) {
 		
-		Response viewCustomerResponse = userService.viewCustomer(token);
+		Response viewCustomerResponse = customerService.viewCustomer(token);
 		return new ResponseEntity<Response> (viewCustomerResponse , HttpStatus.OK);
+		
+	}
+	
+	// Cart Service needs to verify if the book is present to add the book or update the quantity
+	//This end point is going to return a boolean.
+	
+	@GetMapping("/checkCustomer/{token}")
+	public boolean doesCustomeExist(@PathVariable String token) {
+		
+		return customerService.checkCustomer(token);
 		
 	}
 	
@@ -72,7 +82,7 @@ public class CustomerController {
 	@DeleteMapping("/addCustomer")
 	public ResponseEntity<Response> removeCustomer(@RequestHeader String token) {
 		
-		Response removeCustomerResponse = userService.removeCustomer(token);
+		Response removeCustomerResponse = customerService.removeCustomer(token);
 		return new ResponseEntity<Response> (removeCustomerResponse , HttpStatus.OK);
 		
 	}
@@ -82,7 +92,7 @@ public class CustomerController {
 	@RequestMapping(value = "/verify")
 	public ResponseEntity<Response> verifyCustomerWithOtp(@RequestParam int otp , @RequestParam String token) {
 		
-		Response verifyCustomerResponse = userService.verifyCustomerWithOtp(otp , token);
+		Response verifyCustomerResponse = customerService.verifyCustomerWithOtp(otp , token);
 		return new ResponseEntity<Response> (verifyCustomerResponse , HttpStatus.CREATED);
 		
 	}
@@ -92,7 +102,7 @@ public class CustomerController {
 	@PostMapping("/sendOtp")
 	public ResponseEntity<Response> sendOtpToCustomer(@RequestParam String token) {
 		
-		Response sendOtpToCustomerResponse = userService.sendOtpToCustomer(token);
+		Response sendOtpToCustomerResponse = customerService.sendOtpToCustomer(token);
 		return new ResponseEntity<Response> (sendOtpToCustomerResponse , HttpStatus.CREATED);
 		
 	}
@@ -102,7 +112,7 @@ public class CustomerController {
 	@PostMapping("/purchase")
 	public ResponseEntity<Response> purchaseSubcriptionForCustomer( @RequestParam String token) {
 		
-		Response subscriptionpurchaseResponse = userService.purchaseSubscriptionForCustomer(token);
+		Response subscriptionpurchaseResponse = customerService.purchaseSubscriptionForCustomer(token);
 		return new ResponseEntity<Response> (subscriptionpurchaseResponse , HttpStatus.CREATED);
 		
 	}
@@ -112,8 +122,34 @@ public class CustomerController {
 	@PostMapping("/subNearExpiry")
 	public ResponseEntity<Response> emailCustomerSubscriptionExpiry( @RequestParam String token) {
 		
-		Response emailCustomerSubscriptionExpiryResponse = userService.emailCustomerSubscriptionExpiry(token);
+		Response emailCustomerSubscriptionExpiryResponse = customerService.emailCustomerSubscriptionExpiry(token);
 		return new ResponseEntity<Response> (emailCustomerSubscriptionExpiryResponse , HttpStatus.CREATED);
+		
+	}
+	
+	//End point for Customer to login to the app
+	@RequestMapping("/login")
+	public ResponseEntity<Response> loginCustomer(@RequestParam String emailAddress , @RequestParam String password){
+		
+		Response logincustomerResponse = customerService.loginCustomer(emailAddress , password);
+		return new ResponseEntity<Response> (logincustomerResponse , HttpStatus.OK);
+	}
+	
+	//End point if Customer forgot password
+	@RequestMapping("/forgotPassword")
+	public ResponseEntity<Response> forgotPassword(@RequestParam String emailAddress){
+		
+		Response forgotPasswordResponse = customerService.customerForgotPassword(emailAddress);
+		return new ResponseEntity<Response> (forgotPasswordResponse , HttpStatus.OK);
+		
+	}
+	
+	//End to pint to update Password from mail
+	@PutMapping("/updatePassword/{token}")
+	public ResponseEntity<Response> updatePasswordForCustomer(@PathVariable String token , @RequestParam String password){
+		
+		Response updatePAsswordResponse = customerService.updatePassword(token , password);
+		return new ResponseEntity<Response> (updatePAsswordResponse , HttpStatus.OK);
 		
 	}
 	

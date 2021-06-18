@@ -28,5 +28,10 @@ public class EmailUtility {
 		String verificationLinkURL = "http://localhost:8001/customer/verify?otp="+otp+"&token="+token;
 		return verificationLinkURL;
 	}
+
+	public String setPasswordUpdationLink(String token) {
+		String passwordUpdationLink = "http//localhost:6001/customer/updatePassword/"+token;
+		return passwordUpdationLink;
+	}
 	
 }

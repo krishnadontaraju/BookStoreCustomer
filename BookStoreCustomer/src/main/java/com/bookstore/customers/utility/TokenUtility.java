@@ -55,4 +55,45 @@ e.printStackTrace();
 		return userid;
 
 	}
+	
+	public  String createToken(String emailAddress)   {
+	       try {
+	        //to set algorithm
+	        Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+	 
+	        String token = JWT.create()
+	        .withClaim("emailAddress", emailAddress)
+	        .sign(algorithm);
+	        return token;
+	        } catch (JWTCreationException exception) {
+	        exception.printStackTrace();
+	           //log Token Signing Failed
+	        } catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+	        	e.printStackTrace();
+			}
+		       return null;
+		 }
+	
+	public String decodeTokenWithEmail(String token)
+	{
+		String emailAddress;
+		//for verification algorithm
+		Verification verification = null;
+		try {
+			verification = JWT.require(Algorithm.HMAC256(TOKEN_SECRET));
+		} catch (IllegalArgumentException  e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		JWTVerifier jwtverifier=verification.build();
+		//to decode token
+		DecodedJWT decodedjwt=jwtverifier.verify(token);
+
+
+		Claim claim=decodedjwt.getClaim("emailAddress");
+		emailAddress=claim.asString();
+		return emailAddress;
+
+	}
 }

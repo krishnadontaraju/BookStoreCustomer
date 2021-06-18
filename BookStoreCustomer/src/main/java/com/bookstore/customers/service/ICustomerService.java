@@ -22,6 +22,14 @@ public interface ICustomerService {
 	Response purchaseSubscriptionForCustomer(String token);
 
 	Response emailCustomerSubscriptionExpiry(String token);
+
+	boolean checkCustomer(String token);
+
+	Response loginCustomer(String emailAddress, String password);
+
+	Response customerForgotPassword(String emailAddress);
+
+	Response updatePassword(String token , String password);
 	
 	
 

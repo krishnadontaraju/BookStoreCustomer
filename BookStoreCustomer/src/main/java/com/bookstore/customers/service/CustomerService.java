@@ -227,4 +227,76 @@ public class CustomerService implements ICustomerService{
 		}
 	}
 
+	@Override
+	public boolean checkCustomer(String token) {
+		log.info("Accessed Customer check");
+		long id = tokenManagaer.decodeToken(token);
+		Optional<CustomerModel> doesCustomerExist = customerRepository.findById(id);
+		
+		if (doesCustomerExist.isPresent()) {
+			log.info("Customer was found returning true");
+			return true;
+		}else {
+			log.error("Customer was not found with token "+token+" returning false");
+			return false;
+		}
+	}
+
+	@Override
+	public Response loginCustomer(String emailAddress, String password) {
+		log.info("Accesed the login of Book Store");
+		Optional<CustomerModel> doesCustomerExist = customerRepository.findByEmailAddress(emailAddress);
+		
+		if (doesCustomerExist.isPresent()) {
+			log.info("Customer exists with the email Address now, Checking the password");
+			//Now checking the password with our Database
+			if (doesCustomerExist.get().getPassword() == password) {
+				//Customer has been verified now can proceed to the post login 
+				log.info("Customer has been verified against the credentials provided");
+				return new Response("Customer has been verified and Looged in" ,doesCustomerExist.get().getEmailAddress());
+				}else {
+					log.error("Customer has provided wrong password");
+					return new Response("email or password provided are Incorrect " , "Please check again");
+				}
+		}else {
+			log.error("Customer with email was not found "+doesCustomerExist.get().getEmailAddress());
+			return new Response("email or password provided are Incorrect " , "Please check again");
+		}
+	}
+
+	@Override
+	public Response customerForgotPassword(String emailAddress) {
+		log.info("Accessed forgot password with email "+emailAddress);
+		
+		Optional<CustomerModel> doesCustomerExist = customerRepository.findByEmailAddress(emailAddress);
+		
+		if (doesCustomerExist.isPresent()) {
+			log.info("Customer was found with Email "+emailAddress+" now sending email to change email");
+			
+			String passwordUpdationLink = emailUtility.setPasswordUpdationLink(tokenManagaer.createToken(emailAddress));
+			//Sending an email with verification link
+			emailUtility.sendEmail(emailAddress , "Link to update our Password" ,""
+					+ "Please follow the link to change the password\n"+passwordUpdationLink);
+			return new Response("Emailed the updation link" , emailAddress);
+			
+		}else {
+			log.error("Email provided for password Updation wsa Incorrect "+emailAddress);
+			throw new CustomerServiceException(601 , "Email Address provide was not correct");
+		}
+	}
+
+	@Override
+	public Response updatePassword(String token , String password) {
+		log.info("Accessed Password updation");
+		
+		String email = tokenManagaer.decodeTokenWithEmail(token);
+		CustomerModel customer = customerRepository.findByEmailAddress(email).get();
+		customer.setPassword(password);
+		customerRepository.save(customer);
+		log.info("Password has been Changed for Customer "+customer.getEmailAddress());
+		return new Response("Password has been updated" ,customer.getEmailAddress());
+		
+		
+	}
+
 }
